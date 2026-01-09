@@ -1,0 +1,81 @@
+{
+  "info": "FAHAD-786 MASTER LICENSE CONTROL PANEL",
+  "licenses": {
+    "FAHAD-786": {
+      "expiry": "2026-12-31",
+      "authorized_target": ["fahadtech8.github.io", "connect.thefahad.in"],
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Main Admin License"
+    },
+    "LANDING-01": { 
+      "expiry": "2026-05-10", 
+      "authorized_target": [], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Landing Page Order 1"
+    },
+    "WP-PRO-02": { 
+      "expiry": "2026-06-15", 
+      "authorized_target": ["client2.com"], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: WordPress Premium"
+    },
+    "TECH-GURU-03": { 
+      "expiry": "2026-07-20", 
+      "authorized_target": [], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Tech Guru Project"
+    },
+    "SMART-WEB-04": { 
+      "expiry": "2026-08-01", 
+      "authorized_target": ["smartweb.org"], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Smart Web Solutions"
+    },
+    "LUX-SHOP-05": { 
+      "expiry": "2026-09-10", 
+      "authorized_target": [], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Luxury Shop eCommerce"
+    },
+    "PORTFOLIO-06": { 
+      "expiry": "2026-10-01", 
+      "authorized_target": ["myportfolio.com"], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Personal Portfolio"
+    },
+    "ECOM-HUB-07": { 
+      "expiry": "2026-11-20", 
+      "authorized_target": ["ecomhub.pk"], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Pakistan Ecom Store"
+    },
+    "GURU-DEV-08": { 
+      "expiry": "2026-12-15", 
+      "authorized_target": [], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Guru Developer"
+    },
+    "BUSINESS-09": { 
+      "expiry": "2027-01-05", 
+      "authorized_target": ["biz.in"], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Client: Indian Business Portal"
+    },
+    "MASTER-KEY-10": { 
+      "expiry": "2028-12-31", 
+      "authorized_target": [], 
+      "custom_code": { "enabled": false, "code": "" },
+      "note": "Universal Master Key"
+    }
+  },
+  "settings": {
+    "redirect_enabled": true,
+    "redirect_url": "https://wa.me/917081160639",
+    "analytics_id": "G-XXXXXXXXXX",
+    "redirect_delay_sec": 20
+  },
+  "title": "🛡️ Security Shield Active",
+  "msg_expired": "🚨 <b>LICENSE EXPIRED!</b> <br> Aapki website ka license expire ho gaya hai. Agli 20 seconds mein aapko redirect kiya jayega. <br><br> <a href='https://wa.me/917081160639' style='display:inline-block; background:#25D366; color:white; padding:12px 25px; text-decoration:none; border-radius:50px; font-weight:bold; box-shadow:0 4px 15px rgba(37,211,102,0.4);'>Renew on WhatsApp</a>",
+  "msg_invalid": "⚠️ <b>ACCESS DENIED!</b> <br> Invalid License Key detected. Please contact the administrator.",
+  "msg_domain_mismatch": "🚫 <b>DOMAIN UNAUTHORIZED!</b> <br> Yeh website is domain par chalne ke liye authorized nahi hai."
+}

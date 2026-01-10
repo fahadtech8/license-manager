@@ -24,7 +24,7 @@ body {
 
 .card {
   width: 100%;
-  max-width: 620px;
+  max-width: 700px;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
   border-radius: 16px;
@@ -34,7 +34,7 @@ body {
 
 h1 {
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   font-size: 1.4rem;
 }
 
@@ -55,16 +55,23 @@ input, textarea {
 }
 
 textarea {
-  min-height: 90px;
+  min-height: 200px;
   resize: vertical;
+  font-family: monospace;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 button {
-  width: 100%;
-  padding: 14px;
+  flex: 1;
+  padding: 12px;
   border-radius: 12px;
   border: none;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   background: #00c6ff;
@@ -72,20 +79,19 @@ button {
   transition: 0.2s ease;
 }
 
+.copy {
+  background: #2ecc71;
+}
+
 button:hover {
   transform: translateY(-2px);
   opacity: 0.9;
 }
 
-.footer {
-  text-align: center;
-  margin-top: 10px;
-  font-size: 12px;
-  opacity: 0.65;
-}
-
 @media (max-width: 480px) {
-  textarea { min-height: 80px; }
+  .actions {
+    flex-direction: column;
+  }
 }
 </style>
 </head>
@@ -107,31 +113,30 @@ button:hover {
   <label>Note</label>
   <input id="note" placeholder="Client: WordPress Premium">
 
-  <button onclick="generateLicense()">Generate controller.json</button>
-
-  <div class="footer">
-    GitHub Pages • Static • Safe
+  <div class="actions">
+    <button onclick="generate()">Generate JSON</button>
+    <button class="copy" onclick="copyJSON()">Copy JSON</button>
   </div>
+
+  <label>Updated controller.json</label>
+  <textarea id="output" placeholder="Updated controller.json will appear here..." readonly></textarea>
 </div>
 
 <script>
-async function generateLicense() {
+async function generate() {
   const key = document.getElementById("key").value.trim().toUpperCase();
   const expiry = document.getElementById("expiry").value;
-  const domainsInput = document.getElementById("domains").value;
-  const note = document.getElementById("note").value || "Generated License";
-
-  if (!key || !expiry) {
-    alert("License key and expiry date are required");
-    return;
-  }
-
-  const domains = domainsInput
+  const domains = document.getElementById("domains").value
     .split(",")
     .map(d => d.trim())
     .filter(Boolean);
+  const note = document.getElementById("note").value || "Generated License";
 
-  // Load existing controller.json
+  if (!key || !expiry) {
+    alert("License key and expiry date required");
+    return;
+  }
+
   let controller;
   try {
     const res = await fetch("./controller.json");
@@ -141,7 +146,6 @@ async function generateLicense() {
     return;
   }
 
-  // Add / overwrite license
   controller.licenses[key] = {
     expiry: expiry,
     authorized_target: domains,
@@ -149,16 +153,20 @@ async function generateLicense() {
     note: note
   };
 
-  // Download updated controller.json
-  const blob = new Blob(
-    [JSON.stringify(controller, null, 2)],
-    { type: "application/json" }
-  );
+  document.getElementById("output").value =
+    JSON.stringify(controller, null, 2);
+}
 
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "controller.json";
-  a.click();
+function copyJSON() {
+  const out = document.getElementById("output");
+  if (!out.value) {
+    alert("Nothing to copy");
+    return;
+  }
+  out.select();
+  out.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(out.value);
+  alert("JSON copied to clipboard");
 }
 </script>
 

@@ -24,7 +24,7 @@ body {
 
 .card {
   width: 100%;
-  max-width: 700px;
+  max-width: 760px;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
   border-radius: 16px;
@@ -55,7 +55,6 @@ input, textarea {
 }
 
 textarea {
-  min-height: 220px;
   resize: vertical;
   font-family: monospace;
 }
@@ -63,6 +62,7 @@ textarea {
 .actions {
   display: flex;
   gap: 12px;
+  margin-bottom: 14px;
 }
 
 button {
@@ -92,7 +92,7 @@ button {
 <div class="card">
   <h1>License Snippet Generator</h1>
 
-  <label>License Key</label>
+  <label>License Key (Plain)</label>
   <input id="key" placeholder="Example: HELLO">
 
   <label>Expiry Date</label>
@@ -105,12 +105,20 @@ button {
   <input id="note" placeholder="test">
 
   <div class="actions">
-    <button onclick="generate()">Generate Snippet</button>
-    <button class="copy" onclick="copySnippet()">Copy</button>
+    <button onclick="generate()">Generate</button>
   </div>
 
-  <label>License JSON Snippet (Paste into licenses block)</label>
-  <textarea id="output" readonly></textarea>
+  <label>JSON Snippet (Paste into licenses)</label>
+  <div class="actions">
+    <textarea id="jsonOutput" rows="8" readonly></textarea>
+    <button class="copy" onclick="copyJSON()">Copy JSON</button>
+  </div>
+
+  <label>Base64 Encoded License (Separate)</label>
+  <div class="actions">
+    <input id="b64Output" readonly>
+    <button class="copy" onclick="copyB64()">Copy Base64</button>
+  </div>
 </div>
 
 <script>
@@ -128,28 +136,35 @@ function generate() {
     return;
   }
 
+  // Base64 ONLY for separate copy
   const b64 = btoa(unescape(encodeURIComponent(key)));
+  document.getElementById("b64Output").value = b64;
 
+  // JSON WITHOUT Base64
   const snippet = `"${key}": {
-  "license_b64": "${b64}",
   "expiry": "${expiry}",
-  "authorized_target": ${JSON.stringify(domains, null, 2)},
+  "authorized_target": ${JSON.stringify(domains)},
   "custom_code": { "enabled": false, "code": "" },
   "note": "${note}"
 }`;
 
-  document.getElementById("output").value = snippet;
+  document.getElementById("jsonOutput").value = snippet;
 }
 
-function copySnippet() {
-  const out = document.getElementById("output");
-  if (!out.value) {
-    alert("Nothing to copy");
-    return;
-  }
-  out.select();
-  navigator.clipboard.writeText(out.value);
-  alert("License snippet copied");
+function copyJSON() {
+  const el = document.getElementById("jsonOutput");
+  if (!el.value) return alert("Nothing to copy");
+  el.select();
+  navigator.clipboard.writeText(el.value);
+  alert("JSON copied");
+}
+
+function copyB64() {
+  const el = document.getElementById("b64Output");
+  if (!el.value) return alert("Nothing to copy");
+  el.select();
+  navigator.clipboard.writeText(el.value);
+  alert("Base64 copied");
 }
 </script>
 

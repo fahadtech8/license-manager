@@ -1,104 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Base64 Encoder / Decoder</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Base64 Encoder / Decoder</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      color: #fff;
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  color: #fff;
+}
 
-    .card {
-      width: 100%;
-      max-width: 520px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    }
+.container {
+  width: 100%;
+  max-width: 520px;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.4rem;
-      letter-spacing: 0.5px;
-    }
+.card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
 
-    textarea {
-      width: 100%;
-      min-height: 120px;
-      border-radius: 10px;
-      border: none;
-      padding: 12px;
-      resize: vertical;
-      font-size: 14px;
-      outline: none;
-      margin-bottom: 12px;
-    }
+h1 {
+  margin: 0 0 16px;
+  text-align: center;
+  font-size: 1.4rem;
+}
 
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+textarea {
+  width: 100%;
+  min-height: 120px;
+  border-radius: 12px;
+  border: none;
+  padding: 14px;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+  margin-bottom: 14px;
+}
 
-    button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: 0.25s ease;
-    }
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
 
-    .encode {
-      background: #00c6ff;
-      color: #000;
-    }
+.actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
 
-    .decode {
-      background: #f9d423;
-      color: #000;
-    }
+.actions button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
 
-    .copy {
-      background: #2ecc71;
-      color: #000;
-    }
+.encode { background: #00c6ff; color: #000; }
+.decode { background: #f9d423; color: #000; }
+.copy   { background: #2ecc71; color: #000; }
 
-    button:hover {
-      transform: translateY(-2px);
-      opacity: 0.9;
-    }
+.footer {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.7;
+}
 
-    .footer {
-      text-align: center;
-      margin-top: 14px;
-      font-size: 12px;
-      opacity: 0.7;
-    }
-  </style>
+/* Mobile Fix */
+@media (max-width: 480px) {
+  textarea {
+    min-height: 110px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
+</style>
 </head>
 
 <body>
 
+<div class="container">
   <div class="card">
+
     <h1>Base64 Encoder / Decoder</h1>
 
     <textarea id="input" placeholder="Enter or paste text here..."></textarea>
@@ -112,39 +115,41 @@
     <textarea id="output" placeholder="Result will appear here..." readonly></textarea>
 
     <div class="footer">
-      Fast • Secure • Client-Side Only
+      Client-Side • Mobile Safe • No Overlap
     </div>
+
   </div>
+</div>
 
-  <script>
-    function encode() {
-      const text = document.getElementById("input").value;
-      try {
-        document.getElementById("output").value =
-          btoa(unescape(encodeURIComponent(text)));
-      } catch {
-        alert("Invalid input");
-      }
-    }
+<script>
+function encode() {
+  const input = document.getElementById("input").value;
+  try {
+    document.getElementById("output").value =
+      btoa(unescape(encodeURIComponent(input)));
+  } catch {
+    alert("Invalid input");
+  }
+}
 
-    function decode() {
-      const text = document.getElementById("input").value;
-      try {
-        document.getElementById("output").value =
-          decodeURIComponent(escape(atob(text)));
-      } catch {
-        alert("Invalid Base64 string");
-      }
-    }
+function decode() {
+  const input = document.getElementById("input").value;
+  try {
+    document.getElementById("output").value =
+      decodeURIComponent(escape(atob(input)));
+  } catch {
+    alert("Invalid Base64 string");
+  }
+}
 
-    function copyOutput() {
-      const output = document.getElementById("output");
-      output.select();
-      output.setSelectionRange(0, 99999);
-      navigator.clipboard.writeText(output.value);
-      alert("Copied to clipboard");
-    }
-  </script>
+function copyOutput() {
+  const output = document.getElementById("output");
+  output.select();
+  output.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(output.value);
+  alert("Copied to clipboard");
+}
+</script>
 
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>License Generator</title>
+<title>License Snippet Generator</title>
 
 <style>
 * {
@@ -24,7 +24,7 @@ body {
 
 .card {
   width: 100%;
-  max-width: 760px;
+  max-width: 700px;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
   border-radius: 16px;
@@ -55,6 +55,7 @@ input, textarea {
 }
 
 textarea {
+  min-height: 220px;
   resize: vertical;
   font-family: monospace;
 }
@@ -62,7 +63,6 @@ textarea {
 .actions {
   display: flex;
   gap: 12px;
-  margin-bottom: 14px;
 }
 
 button {
@@ -90,88 +90,66 @@ button {
 <body>
 
 <div class="card">
-  <h1>License Generator</h1>
+  <h1>License Snippet Generator</h1>
 
-  <label>License Key (Plain)</label>
-  <input id="key" placeholder="Example: WP-PRO-02">
+  <label>License Key</label>
+  <input id="key" placeholder="Example: HELLO">
 
   <label>Expiry Date</label>
   <input id="expiry" type="date">
 
   <label>Authorized Domains (comma separated)</label>
-  <input id="domains" placeholder="client2.com, example.com">
+  <input id="domains" placeholder="thefahad.in">
 
   <label>Note</label>
-  <input id="note" placeholder="Client: WordPress Premium">
+  <input id="note" placeholder="test">
 
   <div class="actions">
-    <button onclick="generate()">Generate</button>
-    <button class="copy" onclick="copyJSON()">Copy JSON</button>
+    <button onclick="generate()">Generate Snippet</button>
+    <button class="copy" onclick="copySnippet()">Copy</button>
   </div>
 
-  <label>Base64 Encoded License Key</label>
-  <div class="actions">
-    <input id="b64" readonly>
-    <button class="copy" onclick="copyB64()">Copy Base64</button>
-  </div>
-
-  <label>Updated controller.json</label>
-  <textarea id="output" rows="10" readonly></textarea>
+  <label>License JSON Snippet (Paste into licenses block)</label>
+  <textarea id="output" readonly></textarea>
 </div>
 
 <script>
-async function generate() {
+function generate() {
   const key = document.getElementById("key").value.trim().toUpperCase();
   const expiry = document.getElementById("expiry").value;
   const domains = document.getElementById("domains").value
     .split(",")
     .map(d => d.trim())
     .filter(Boolean);
-  const note = document.getElementById("note").value || "Generated License";
+  const note = document.getElementById("note").value || "";
 
   if (!key || !expiry) {
     alert("License key and expiry date required");
     return;
   }
 
-  let controller;
-  try {
-    const res = await fetch("./controller.json");
-    controller = await res.json();
-  } catch {
-    alert("controller.json not found in same folder");
+  const b64 = btoa(unescape(encodeURIComponent(key)));
+
+  const snippet = `"${key}": {
+  "license_b64": "${b64}",
+  "expiry": "${expiry}",
+  "authorized_target": ${JSON.stringify(domains, null, 2)},
+  "custom_code": { "enabled": false, "code": "" },
+  "note": "${note}"
+}`;
+
+  document.getElementById("output").value = snippet;
+}
+
+function copySnippet() {
+  const out = document.getElementById("output");
+  if (!out.value) {
+    alert("Nothing to copy");
     return;
   }
-
-  const base64Key = btoa(unescape(encodeURIComponent(key)));
-  document.getElementById("b64").value = base64Key;
-
-  controller.licenses[key] = {
-    license_b64: base64Key,
-    expiry: expiry,
-    authorized_target: domains,
-    custom_code: { enabled: false, code: "" },
-    note: note
-  };
-
-  document.getElementById("output").value =
-    JSON.stringify(controller, null, 2);
-}
-
-function copyJSON() {
-  const out = document.getElementById("output");
-  if (!out.value) return alert("Nothing to copy");
   out.select();
   navigator.clipboard.writeText(out.value);
-  alert("JSON copied");
-}
-
-function copyB64() {
-  const b64 = document.getElementById("b64");
-  if (!b64.value) return alert("Nothing to copy");
-  b64.select();
-  navigator.clipboard.writeText(b64.value);
-  alert("Base64 key copied");
+  alert("License snippet copied");
 }
 </script>
 

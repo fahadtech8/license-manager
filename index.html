@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>License Snippet Generator</title>
+<title>License Generator</title>
 
 <style>
 * {
@@ -24,23 +24,23 @@ body {
 
 .card {
   width: 100%;
-  max-width: 760px;
+  max-width: 820px;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.4);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 16px;
-  font-size: 1.4rem;
+  margin-bottom: 22px;
+  font-size: 1.5rem;
 }
 
 label {
   font-size: 13px;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 input, textarea {
@@ -56,33 +56,54 @@ input, textarea {
 
 textarea {
   resize: vertical;
-  font-family: monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-.actions {
+.generate-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(90deg,#00c6ff,#00eaff);
+  color: #000;
+  margin: 10px 0 24px;
+}
+
+.section {
+  background: rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+.row {
   display: flex;
   gap: 12px;
-  margin-bottom: 14px;
 }
 
-button {
-  flex: 1;
-  padding: 12px;
+.copy-btn {
+  min-width: 120px;
   border-radius: 12px;
   border: none;
-  font-size: 14px;
-  font-weight: 600;
   cursor: pointer;
-  background: #00c6ff;
+  font-weight: 600;
+  background: #2ecc71;
   color: #000;
 }
 
-.copy {
-  background: #2ecc71;
-}
-
-@media (max-width: 480px) {
-  .actions { flex-direction: column; }
+@media (max-width: 600px) {
+  .row {
+    flex-direction: column;
+  }
 }
 </style>
 </head>
@@ -92,33 +113,39 @@ button {
 <div class="card">
   <h1>License Snippet Generator</h1>
 
-  <label>License Key (Plain)</label>
-  <input id="key" placeholder="Example: HELLO">
+  <label>License Key</label>
+  <input id="key" placeholder="HELLO">
 
   <label>Expiry Date</label>
   <input id="expiry" type="date">
 
-  <label>Authorized Domains (comma separated)</label>
+  <label>Authorized Domains</label>
   <input id="domains" placeholder="thefahad.in">
 
   <label>Note</label>
-  <input id="note" placeholder="test">
+  <input id="note" placeholder="for the backhodi">
 
-  <div class="actions">
-    <button onclick="generate()">Generate</button>
+  <!-- Generate -->
+  <button class="generate-btn" onclick="generate()">Generate</button>
+
+  <!-- JSON Section -->
+  <div class="section">
+    <div class="section-title">JSON Snippet (Paste into licenses)</div>
+    <div class="row">
+      <textarea id="jsonOutput" rows="8" readonly></textarea>
+      <button class="copy-btn" onclick="copyJSON()">Copy JSON</button>
+    </div>
   </div>
 
-  <label>JSON Snippet (Paste into licenses)</label>
-  <div class="actions">
-    <textarea id="jsonOutput" rows="8" readonly></textarea>
-    <button class="copy" onclick="copyJSON()">Copy JSON</button>
+  <!-- Base64 Section -->
+  <div class="section">
+    <div class="section-title">Base64 Encoded License (Separate)</div>
+    <div class="row">
+      <input id="b64Output" readonly>
+      <button class="copy-btn" onclick="copyB64()">Copy Base64</button>
+    </div>
   </div>
 
-  <label>Base64 Encoded License (Separate)</label>
-  <div class="actions">
-    <input id="b64Output" readonly>
-    <button class="copy" onclick="copyB64()">Copy Base64</button>
-  </div>
 </div>
 
 <script>
@@ -126,45 +153,38 @@ function generate() {
   const key = document.getElementById("key").value.trim().toUpperCase();
   const expiry = document.getElementById("expiry").value;
   const domains = document.getElementById("domains").value
-    .split(",")
-    .map(d => d.trim())
-    .filter(Boolean);
+    .split(",").map(d => d.trim()).filter(Boolean);
   const note = document.getElementById("note").value || "";
 
   if (!key || !expiry) {
-    alert("License key and expiry date required");
+    alert("License key and expiry required");
     return;
   }
 
-  // Base64 ONLY for separate copy
-  const b64 = btoa(unescape(encodeURIComponent(key)));
-  document.getElementById("b64Output").value = b64;
+  // Base64 only for separate copy
+  document.getElementById("b64Output").value =
+    btoa(unescape(encodeURIComponent(key)));
 
-  // JSON WITHOUT Base64
-  const snippet = `"${key}": {
+  // JSON snippet WITHOUT Base64
+  document.getElementById("jsonOutput").value =
+`"${key}": {
   "expiry": "${expiry}",
   "authorized_target": ${JSON.stringify(domains)},
   "custom_code": { "enabled": false, "code": "" },
   "note": "${note}"
 }`;
-
-  document.getElementById("jsonOutput").value = snippet;
 }
 
 function copyJSON() {
   const el = document.getElementById("jsonOutput");
-  if (!el.value) return alert("Nothing to copy");
   el.select();
   navigator.clipboard.writeText(el.value);
-  alert("JSON copied");
 }
 
 function copyB64() {
   const el = document.getElementById("b64Output");
-  if (!el.value) return alert("Nothing to copy");
   el.select();
   navigator.clipboard.writeText(el.value);
-  alert("Base64 copied");
 }
 </script>
 

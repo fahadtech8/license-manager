@@ -1,1 +1,25 @@
+<!-- Base64 Encoder / Decoder -->
+<div style="max-width:600px;margin:auto;font-family:Arial">
+  <h3>Base64 Encode / Decode</h3>
 
+  <textarea id="input" placeholder="Enter text here"
+    style="width:100%;height:100px;margin-bottom:10px;"></textarea>
+
+  <button onclick="encodeBase64()">Encode</button>
+  <button onclick="decodeBase64()">Decode</button>
+
+  <textarea id="output" placeholder="Result"
+    style="width:100%;height:100px;margin-top:10px;"></textarea>
+
+  <script>
+    function encodeBase64() {
+      const text = document.getElementById("input").value;
+      document.getElementById("output").value = btoa(unescape(encodeURIComponent(text)));
+    }
+
+    function decodeBase64() {
+      const text = document.getElementById("input").value;
+      document.getElementById("output").value = decodeURIComponent(escape(atob(text)));
+    }
+  </script>
+</div>

@@ -1,25 +1,150 @@
-<!-- Base64 Encoder / Decoder -->
-<div style="max-width:600px;margin:auto;font-family:Arial">
-  <h3>Base64 Encode / Decode</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Base64 Encoder / Decoder</title>
 
-  <textarea id="input" placeholder="Enter text here"
-    style="width:100%;height:100px;margin-bottom:10px;"></textarea>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont;
+    }
 
-  <button onclick="encodeBase64()">Encode</button>
-  <button onclick="decodeBase64()">Decode</button>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #fff;
+    }
 
-  <textarea id="output" placeholder="Result"
-    style="width:100%;height:100px;margin-top:10px;"></textarea>
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      letter-spacing: 0.5px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      border-radius: 10px;
+      border: none;
+      padding: 12px;
+      resize: vertical;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .encode {
+      background: #00c6ff;
+      color: #000;
+    }
+
+    .decode {
+      background: #f9d423;
+      color: #000;
+    }
+
+    .copy {
+      background: #2ecc71;
+      color: #000;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Base64 Encoder / Decoder</h1>
+
+    <textarea id="input" placeholder="Enter or paste text here..."></textarea>
+
+    <div class="actions">
+      <button class="encode" onclick="encode()">Encode</button>
+      <button class="decode" onclick="decode()">Decode</button>
+      <button class="copy" onclick="copyOutput()">Copy</button>
+    </div>
+
+    <textarea id="output" placeholder="Result will appear here..." readonly></textarea>
+
+    <div class="footer">
+      Fast • Secure • Client-Side Only
+    </div>
+  </div>
 
   <script>
-    function encodeBase64() {
+    function encode() {
       const text = document.getElementById("input").value;
-      document.getElementById("output").value = btoa(unescape(encodeURIComponent(text)));
+      try {
+        document.getElementById("output").value =
+          btoa(unescape(encodeURIComponent(text)));
+      } catch {
+        alert("Invalid input");
+      }
     }
 
-    function decodeBase64() {
+    function decode() {
       const text = document.getElementById("input").value;
-      document.getElementById("output").value = decodeURIComponent(escape(atob(text)));
+      try {
+        document.getElementById("output").value =
+          decodeURIComponent(escape(atob(text)));
+      } catch {
+        alert("Invalid Base64 string");
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById("output");
+      output.select();
+      output.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(output.value);
+      alert("Copied to clipboard");
     }
   </script>
-</div>
+
+</body>
+</html>

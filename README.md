@@ -18,36 +18,59 @@ Bilkul, maine aapke liye **HTML (Landing Page)**, **PHP Core**, aur **WordPress*
         </div>
     </div>
 </div>
+
 <script>
 (function(){
+    // URL: https://fahadtech8.github.io/license-manager/controller.json
     const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
+    // Key: FAHAD-786
     const _k = atob("RkFIQUQtNzg2"); 
+
     async function _v8_core(){
-        const o=document.getElementById('_x_ov'), h=window.location.hostname.replace('www.','');
+        const o = document.getElementById('_x_ov'), h = window.location.hostname.replace('www.','');
         try {
-            const r=await fetch(_u+'?v='+Date.now()); if(!r.ok) return;
-            const d=await r.json(), m=d['_l_'][_k], n=new Date().toISOString().split('T')[0];
-            if(d['_s_']?.['_a_id']){
-                let g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+d['_s_']['_a_id'];
+            const r = await fetch(_u + '?v=' + Date.now());
+            if(!r.ok) return;
+            const d = await r.json();
+            
+            // Yahan keys ko aapke JSON ke mutabiq fix kiya gaya hai
+            const m = d['licenses'] ? d['licenses'][_k] : null; 
+            const n = new Date().toISOString().split('T')[0];
+
+            // Analytics logic
+            if(d['settings']?.['analytics_id']){
+                let g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+d['settings']['analytics_id'];
                 document.head.appendChild(g); window.dataLayer=window.dataLayer||[];
-                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',d['_s_']['_a_id']);
+                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',d['settings']['analytics_id']);
             }
-            let err=null;
-            if(!m) err=d['_m_in'];
-            else if(m['_a_']?.length>0 && !m['_a_'].includes(h)) err=d['_m_dm'];
-            else if(m['_e_'] && n>m['_e_']) err=d['_m_ex'];
+
+            let err = null;
+            if(!m) err = d['msg_invalid'];
+            else if(m['authorized_target']?.length > 0 && !m['authorized_target'].includes(h)) err = d['msg_domain_mismatch'];
+            else if(m['expiry'] && n > m['expiry']) err = d['msg_expired'];
+
             if(err){
-                document.body.style.overflow='hidden';
-                document.getElementById('_x_h').innerHTML=d['_t_'];
-                document.getElementById('_x_b').innerHTML=err;
-                o.style.display='flex';
-                if(d['_s_']?.['_r_en']){
-                    const tw=document.getElementById('_x_tm_w'), ts=document.getElementById('_x_tm');
-                    tw.style.display='block'; let s=d['_s_']['_r_de']||20; ts.innerText=s;
-                    let it=setInterval(()=>{ s--; if(ts) ts.innerText=s; if(s<=0){clearInterval(it);window.location.href=d['_s_']['_r_u'];}},1000);
+                document.body.style.overflow = 'hidden';
+                document.getElementById('_x_h').innerHTML = d['title'] || "Security Shield";
+                document.getElementById('_x_b').innerHTML = err;
+                o.style.display = 'flex';
+                
+                if(d['settings']?.['redirect_enabled']){
+                    const tw = document.getElementById('_x_tm_w'), ts = document.getElementById('_x_tm');
+                    tw.style.display = 'block';
+                    let s = d['settings']['redirect_delay_sec'] || 20;
+                    ts.innerText = s;
+                    let it = setInterval(() => {
+                        s--;
+                        if(ts) ts.innerText = s;
+                        if(s <= 0){
+                            clearInterval(it);
+                            window.location.href = d['settings']['redirect_url'];
+                        }
+                    }, 1000);
                 }
             }
-        } catch(e){}
+        } catch(e) { console.log("Shield Active"); }
     }
     _v8_core();
 })();

@@ -3,7 +3,7 @@
   "licenses": {
     "FAHAD-786": {
       "expiry": "2026-12-31",
-      "authorized_target": ["fahadtech8.github.io", "connect.thefahad.in"],
+      "authorized_target": ["fahadtech8.github.io", "connect.thefahad.in","erp.thefahad.in","thefahad.in"],
       "custom_code": { "enabled": false, "code": "" },
       "note": "Main Admin License"
     },

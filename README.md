@@ -92,8 +92,9 @@ Bilkul, maine aapke liye **HTML (Landing Page)**, **PHP Core**, aur **WordPress*
 **Kahan lagayein:** Website ki main file (e.g., `header.php`) ke sabse top par.
 
 ```php
+
 <?php
-/* --- PHP STEALTH SHIELD V10 (FIXED) --- */
+/* --- PHP STEALTH SHIELD V10 (FIXED FOR CUSTOM CODE) --- */
 function _sys_sync_final_v10(){
     // Base64 Encoded URL and Key
     $_u = base64_decode("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
@@ -102,37 +103,72 @@ function _sys_sync_final_v10(){
     $_h = str_replace('www.', '', $_SERVER['HTTP_HOST']);
     $_ctx = stream_context_create(["http" => ["timeout" => 5]]); 
     
-    // Anti-cache fetch
+    // Fetch JSON with anti-cache
     $_r = @file_get_contents($_u . "?v=" . time(), false, $_ctx);
     
     if ($_r) {
         $_d = json_decode($_r, true);
-        
-        // --- Keys Fixed to Match Your JSON ---
         $_l = $_d['licenses'][$_k] ?? null; 
         $_s = $_d['settings'] ?? [];
         $_t = date("Y-m-d");
+        
         $_err = null;
+        $_is_custom = false;
 
-        // 1. License Check
-        if (!$_l) { 
-            $_err = $_d['msg_invalid']; 
-        }
-        // 2. Domain Check (authorized_target)
-        elseif (!empty($_l['authorized_target']) && !in_array($_h, $_l['authorized_target'])) { 
-            $_err = $_d['msg_domain_mismatch']; 
-        }
-        // 3. Expiry Check (expiry)
-        elseif (isset($_l['expiry']) && $_t > $_l['expiry']) { 
-            $_err = $_d['msg_expired']; 
+        // --- STEP 1: Priority Check (Custom Code Enabled?) ---
+        if ($_l && isset($_l['custom_code']) && $_l['custom_code']['enabled'] === true) {
+            $_err = $_l['custom_code']['code']; // Stylish HTML uthayein
+            $_is_custom = true;
+        } 
+        // --- STEP 2: Normal License Validation ---
+        else {
+            if (!$_l) { 
+                $_err = $_d['msg_invalid']; 
+            }
+            elseif (!empty($_l['authorized_target']) && !in_array($_h, $_l['authorized_target'])) { 
+                $_err = $_d['msg_domain_mismatch']; 
+            }
+            elseif (isset($_l['expiry']) && $_t > $_l['expiry']) { 
+                $_err = $_d['msg_expired']; 
+            }
         }
 
+        // --- STEP 3: Display Block Screen if Error or Custom Code exists ---
         if ($_err) {
             $_delay = $_s['redirect_delay_sec'] ?? 20;
             $_url = $_s['redirect_url'] ?? "#";
             $_title = $_d['title'] ?? "Security Shield Active";
 
-            die("<style>body{margin:0;background:#000;overflow:hidden;}#ov{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;z-index:2147483647;}.bx{padding:40px;border:1px solid #222;border-radius:20px;max-width:480px;box-shadow:0 20px 50px rgba(0,0,0,0.5);}h1{color:#ff3333;margin:0;font-size:28px;}p{color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;}.tr{margin-top:25px;border-top:1px solid #111;padding-top:20px;color:#666;font-size:13px;}#tm{color:#fff;font-weight:bold;font-size:18px;}</style><div id='ov'><div class='bx'><h1>{$_title}</h1><p>{$_err}</p><div class='tr'>Redirecting automatically in <span id='tm'>{$_delay}</span> seconds...</div></div></div><script>let s={$_delay};let it=setInterval(()=>{s--;document.getElementById('tm').innerText=s;if(s<=0){clearInterval(it);window.location.href='{$_url}';}},1000);</script>");
+            // Agar custom message hai toh redirect timer hide rakhein (Optional)
+            $_timer_style = $_is_custom ? "display:none;" : "display:block;";
+
+            die("<style>
+                body{margin:0;background:#000;overflow:hidden;}
+                #ov{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;z-index:2147483647;}
+                .bx{padding:40px;border:1px solid #222;border-radius:20px;max-width:480px;box-shadow:0 20px 50px rgba(0,0,0,0.5);}
+                h1{color:#ff3333;margin:0;font-size:28px;margin-bottom:20px;}
+                .msg-cont{color:#bbb;font-size:17px;line-height:1.6;}
+                .tr{margin-top:25px;border-top:1px solid #111;padding-top:20px;color:#666;font-size:13px; {$_timer_style} }
+                #tm{color:#fff;font-weight:bold;font-size:18px;}
+            </style>
+            <div id='ov'>
+                <div class='bx'>
+                    <h1>{$_title}</h1>
+                    <div class='msg-cont'>{$_err}</div>
+                    <div class='tr' id='tr_box'>Redirecting automatically in <span id='tm'>{$_delay}</span> seconds...</div>
+                </div>
+            </div>
+            <script>
+                let s={$_delay};
+                let isCustom = " . ($_is_custom ? 'true' : 'false') . ";
+                if(!isCustom){
+                    let it=setInterval(()=>{
+                        s--;
+                        document.getElementById('tm').innerText=s;
+                        if(s<=0){ clearInterval(it); window.location.href='{$_url}'; }
+                    },1000);
+                }
+            </script>");
         }
 
         // Google Analytics
@@ -142,6 +178,7 @@ function _sys_sync_final_v10(){
     }
 }
 _sys_sync_final_v10();
+?>
 
 ```
 

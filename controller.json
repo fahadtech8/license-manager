@@ -1,7 +1,7 @@
 {
   "info": "FAHAD-786 MASTER LICENSE CONTROL PANEL",
   "licenses": {
-    "FAHAD-7861": {
+    "FAHAD-786": {
       "expiry": "2026-12-31",
       "authorized_target": ["fahadtech8.github.io", "connect.thefahad.in"],
       "custom_code": { "enabled": false, "code": "" },

